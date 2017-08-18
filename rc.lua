@@ -10,6 +10,9 @@ local beautiful = require("beautiful")
 local naughty = require("naughty")
 local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
+
+local bat = require("bat")
+
 -- Enable VIM help for hotkeys widget when client with matching name is opened:
 require("awful.hotkeys_popup.keys.vim")
 
@@ -40,11 +43,12 @@ end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
-beautiful.init(awful.util.get_themes_dir() .. "default/theme.lua")
+beautiful.init(awful.util.get_themes_dir() .. "archTheme/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "terminology"
-editor = os.getenv("EDITOR") or "nano"
+--editor = os.getenv("EDITOR") or "nano"
+editor = "vim"
 editor_cmd = terminal .. " -e " .. editor
 
 -- Default modkey.
@@ -100,8 +104,40 @@ myawesomemenu = {
    { "quit", function() awesome.quit() end}
 }
 
+icons_path= "/usr/share/awesome/myicons/"
+
+filesmenu= {
+	{ "Nautilus", "nautilus", icons_path .. "nautilus.png"}
+}
+	
+
+programmenu= {
+	{ "Arduino", "arduino", icons_path .. "arduino.png"},
+	{ "QtCreator", "qtcreator", icons_path .. "qtcreator.png"},
+}
+
+internet= {
+	{ "Firefox", "firefox", icons_path .. "firefox.png"},
+}
+
+texteditors= {
+	{ "Vim", terminal .. " -e vim", },
+	{ "Kate", "kate", icons_path .. "kate.png" },
+}
+
+systemmenu= {
+	{ "Reiniciar", "reboot"},
+	{ "Apagar", "poweroff"},
+	{ "Cerrar Sesion", function() awesome.quit() end},
+}
+
 mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
-                                    { "open terminal", terminal }
+                                    { "open terminal", terminal },
+				    { "Archivos", filesmenu},
+				    { "Text Editors", texteditors},
+				    { "Programacion", programmenu},
+				    { "Internet", internet},
+				    { "Sistema", systemmenu},
                                   }
                         })
 
@@ -118,6 +154,26 @@ mykeyboardlayout = awful.widget.keyboardlayout()
 -- {{{ Wibar
 -- Create a textclock widget
 mytextclock = wibox.widget.textclock()
+
+
+
+textbox= wibox.widget{
+	markup = '<span bgcolor="#AAAAAA" color="#FFFFFF">mannuel</span>' ..
+		'<span color="#AAAAAA" bgcolor="#FF0000"></span>',
+	align = 'center',
+	valign = 'center',
+	height = 15,
+	widget = wibox.widget.textbox
+}
+
+textbox2= wibox.widget{
+	markup = '<span bgcolor="#FF0000" color="#FFFFFF">mannuel</span><span color="#AAAAAA"></span>',
+	align = 'center',
+	valign = 'center',
+	widget = wibox.widget.textbox
+}
+
+bat = bat()
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
@@ -215,6 +271,9 @@ awful.screen.connect_for_each_screen(function(s)
         s.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
+	    bat,
+	    --textbox,
+	    --textbox2,
             mykeyboardlayout,
             wibox.widget.systray(),
             mytextclock,
@@ -255,7 +314,7 @@ globalkeys = gears.table.join(
         end,
         {description = "focus previous by index", group = "client"}
     ),
-    awful.key({ modkey,           }, "w", function () mymainmenu:show() end,
+    awful.key({ modkey,           }, "w", function () mymainmenu:toggle() end,
               {description = "show main menu", group = "awesome"}),
 
     -- Layout manipulation
